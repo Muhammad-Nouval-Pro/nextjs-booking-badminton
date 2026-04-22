@@ -1,26 +1,1191 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
+/* =============================================
+   CSS VARIABLES / DESIGN TOKENS
+   ============================================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --biru-primer: #2563eb;
+  --biru-muda: #3b82f6;
+  --biru-gelap: #1e3a8a;
+  --biru-bg: #eff6ff;
+  --biru-border: #bfdbfe;
+
+  --abu-50: #f8fafc;
+  --abu-100: #f1f5f9;
+  --abu-200: #e2e8f0;
+  --abu-500: #64748b;
+  --abu-700: #334155;
+  --abu-900: #0f172a;
+
+  --merah: #ef4444;
+  --kuning: #f59e0b;
+  --hijau-500: #10b981;
+  --hijau-600: #059669;
+  --hijau-bg: #ecfdf5;
+
+  --bayangan-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --bayangan-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.06);
+  --bayangan-lg: 0 10px 40px rgba(0,0,0,0.12);
+  --bayangan-biru: 0 4px 20px rgba(37, 99, 235, 0.25);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --transisi: 0.2s ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--abu-50);
+  color: var(--abu-900);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input, button, textarea, select {
+  font-family: inherit;
+}
+
+/* =============================================
+   KOMPONEN AUTH (LOGIN & REGISTER)
+   ============================================= */
+.auth-wrapper {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.auth-kiri {
+  background: linear-gradient(135deg, var(--biru-gelap) 0%, var(--biru-primer) 60%, var(--biru-muda) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-kiri::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+}
+
+.auth-kiri::after {
+  content: '';
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-logo-ikon {
+  width: 52px;
+  height: 52px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.auth-logo-teks {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.auth-kiri-konten {
+  color: white;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-kiri-konten h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+
+.auth-kiri-konten p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  max-width: 340px;
+  margin: 0 auto 2.5rem;
+}
+
+.auth-fitur-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.auth-fitur-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  color: white;
+}
+
+.auth-fitur-list li span:first-child {
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.auth-kanan {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  background: white;
+}
+
+.auth-kartu {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-kartu-judul {
+  margin-bottom: 2rem;
+}
+
+.auth-kartu-judul h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--abu-900);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.4rem;
+}
+
+.auth-kartu-judul p {
+  color: var(--abu-500);
+  font-size: 0.95rem;
+}
+
+/* =============================================
+   FORM KOMPONEN
+   ============================================= */
+.form-grup {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--abu-700);
+  margin-bottom: 0.4rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--abu-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--abu-900);
+  background: var(--abu-50);
+  transition: border-color var(--transisi), box-shadow var(--transisi), background var(--transisi);
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--biru-primer);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+.form-input.error {
+  border-color: var(--merah);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-error {
+  color: var(--merah);
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.form-pesan-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--merah);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-pesan-sukses {
+  background: var(--hijau-bg);
+  border: 1px solid var(--hijau-500);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--hijau-600);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+/* =============================================
+   TOMBOL
+   ============================================= */
+.tombol-primer {
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  background: linear-gradient(135deg, var(--biru-primer) 0%, var(--biru-muda) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.975rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--transisi), box-shadow var(--transisi), opacity var(--transisi);
+  letter-spacing: 0.01em;
+}
+
+.tombol-primer:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--bayangan-biru);
+}
+
+.tombol-primer:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tombol-primer:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--abu-500);
+}
+
+.auth-link a {
+  color: var(--biru-primer);
+  font-weight: 600;
+  transition: color var(--transisi);
+}
+
+.auth-link a:hover {
+  color: var(--biru-gelap);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  color: var(--abu-500);
+  font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--abu-200);
+}
+
+/* =============================================
+   DASHBOARD LAYOUT
+   ============================================= */
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: var(--abu-100);
+}
+
+.sidebar {
+  width: 260px;
+  background: white;
+  border-right: 1px solid var(--abu-200);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--abu-200);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-logo-ikon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--biru-primer), var(--biru-muda));
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.sidebar-logo-teks {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--abu-900);
+  letter-spacing: -0.02em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+}
+
+.sidebar-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--abu-500);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--abu-700);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transisi), color var(--transisi);
+  margin-bottom: 0.15rem;
+}
+
+.sidebar-item:hover {
+  background: var(--abu-100);
+  color: var(--abu-900);
+}
+
+.sidebar-item.aktif {
+  background: var(--biru-bg);
+  color: var(--biru-primer);
+  font-weight: 600;
+}
+
+.sidebar-item .sidebar-ikon {
+  width: 20px;
+  text-align: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.sidebar-bawah {
+  padding: 1rem 0.75rem;
+  border-top: 1px solid var(--abu-200);
+}
+
+.sidebar-pengguna {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transisi);
+}
+
+.sidebar-pengguna:hover {
+  background: var(--abu-100);
+}
+
+.sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--biru-primer), var(--biru-muda));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sidebar-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-nama {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--abu-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-peran {
+  font-size: 0.75rem;
+  color: var(--abu-500);
+}
+
+.konten-utama {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.konten-header {
+  background: white;
+  border-bottom: 1px solid var(--abu-200);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.konten-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--abu-900);
+  letter-spacing: -0.02em;
+}
+
+.konten-body {
+  padding: 2rem;
+}
+
+/* =============================================
+   KARTU STATISTIK
+   ============================================= */
+.grid-statistik {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.kartu-statistik {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--abu-200);
+  transition: box-shadow var(--transisi), transform var(--transisi);
+}
+
+.kartu-statistik:hover {
+  box-shadow: var(--bayangan-md);
+  transform: translateY(-2px);
+}
+
+.kartu-statistik-atas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.kartu-statistik-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--abu-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kartu-statistik-ikon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.ikon-biru { background: var(--biru-bg); color: var(--biru-primer); }
+.ikon-kuning { background: #fffbeb; }
+.ikon-merah { background: #fef2f2; }
+
+.kartu-statistik-nilai {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--abu-900);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.kartu-statistik-sub {
+  font-size: 0.8rem;
+  color: var(--abu-500);
+}
+
+/* =============================================
+   KARTU KONTEN
+   ============================================= */
+.kartu {
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--abu-200);
+  overflow: hidden;
+}
+
+.kartu-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--abu-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kartu-judul {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--abu-900);
+}
+
+.kartu-body {
+  padding: 1.5rem;
+}
+
+.kartu-premium {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kartu-premium:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.kartu-premium button {
+  transition: all 0.2s ease;
+}
+
+.kartu-premium button:hover {
+  filter: brightness(0.95);
+  transform: scale(1.02);
+}
+
+/* =============================================
+   BADGE STATUS
+   ============================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-biru { background: var(--biru-bg); color: var(--biru-primer); }
+.badge-kuning { background: #fffbeb; color: #b45309; }
+.badge-merah { background: #fef2f2; color: var(--merah); }
+.badge-abu { background: var(--abu-100); color: var(--abu-500); }
+
+/* =============================================
+   TABEL
+   ============================================= */
+.tabel-wrapper {
+  overflow-x: auto;
+}
+
+.tabel {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabel th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--abu-500);
+  border-bottom: 1px solid var(--abu-200);
+  background: var(--abu-50);
+}
+
+.tabel td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--abu-700);
+  border-bottom: 1px solid var(--abu-100);
+}
+
+.tabel tr:last-child td {
+  border-bottom: none;
+}
+
+.tabel tr:hover td {
+  background: var(--abu-50);
+}
+
+/* =============================================
+   HALAMAN TIDAK DIIZINKAN / ERROR
+   ============================================= */
+.halaman-tengah {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* =============================================
+   RESPONSIF (MOBILE & HAMBURGER)
+   ============================================= */
+.burger-checkbox,
+.sidebar-header-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-kiri {
+    display: none;
+  }
+
+  .grid-statistik {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .burger-checkbox {
+    display: none;
+  }
+  .sidebar-header-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    background: white;
+    width: 100%;
+    border-bottom: 1px solid var(--abu-200);
+  }
+
+  .burger-label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--abu-900);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--abu-100);
+  }
+
+  .sidebar-logo-mobile {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--biru-primer);
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: none;
+    position: static;
+  }
+
+  .sidebar-logo {
+    display: none;
+  }
+
+  .sidebar-nav, .sidebar-bawah {
+    display: none; /* Disembunyikan awalnya */
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .sidebar-nav {
+    padding: 1rem;
+    gap: 0.25rem;
+    white-space: normal;
+  }
+
+  .sidebar-bawah {
+    padding: 1rem;
+    border-left: none;
+    border-top: 1px solid var(--abu-200);
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Munculkan jika checkbox dicentang */
+  .burger-checkbox:checked ~ .sidebar-nav,
+  .burger-checkbox:checked ~ .sidebar-bawah {
+    display: flex;
+  }
+
+  .sidebar-item {
+    margin-bottom: 0;
+    padding: 0.85rem 1rem;
+  }
+
+  .dashboard-wrapper {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-statistik {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================
+   HALAMAN RATING & ULASAN
+   ============================================= */
+
+/* Tab Switcher */
+.rating-tab-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 0.35rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--abu-200);
+}
+
+.rating-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--abu-500);
+  transition: all var(--transisi);
+  font-family: inherit;
+}
+
+.rating-tab:hover {
+  color: var(--abu-700);
+  background: var(--abu-50);
+}
+
+.rating-tab-aktif {
+  background: var(--biru-primer) !important;
+  color: white !important;
+  box-shadow: var(--bayangan-biru);
+}
+
+.rating-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+.rating-tab-aktif .rating-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.rating-tab-count-selesai {
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--biru-primer);
+}
+
+.rating-tab-aktif .rating-tab-count-selesai {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+/* Rating List */
+.rating-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Rating Card */
+.rating-kartu {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--bayangan-sm);
+  border: 1px solid var(--abu-200);
+  transition: box-shadow var(--transisi), transform var(--transisi);
+}
+
+.rating-kartu:hover {
+  box-shadow: var(--bayangan-md);
+  transform: translateY(-2px);
+}
+
+.rating-kartu-selesai {
+  border-left: 4px solid var(--biru-primer);
+}
+
+/* Card Header Info */
+.rating-kartu-header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--abu-100);
+}
+
+.rating-lap-ikon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--biru-bg), #dbeafe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.rating-lap-ikon-selesai {
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+}
+
+.rating-lap-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rating-lap-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--abu-900);
+  margin: 0 0 0.2rem;
+}
+
+.rating-waktu {
+  font-size: 0.8rem;
+  color: var(--abu-500);
+}
+
+/* Star Rating */
+.rating-bintang-wrapper {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.rating-bintang-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: var(--abu-200);
+  transition: color 0.15s ease, transform 0.15s ease;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-bintang-btn:hover {
+  transform: scale(1.2);
+}
+
+.rating-bintang-btn:disabled {
+  cursor: not-allowed;
+}
+
+.rating-bintang-aktif {
+  color: #f59e0b !important;
+}
+
+.rating-bintang-statis {
+  color: var(--abu-200);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Form Sections */
+.rating-form-section {
+  margin-bottom: 1.25rem;
+}
+
+.rating-form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--abu-700);
+  margin-bottom: 0.5rem;
+}
+
+.rating-teks-level {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--kuning);
+  animation: ratingFadeIn 0.3s ease;
+}
+
+@keyframes ratingFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rating-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--abu-200);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--abu-900);
+  background: var(--abu-50);
+  transition: border-color var(--transisi), box-shadow var(--transisi), background var(--transisi);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.rating-textarea:focus {
+  border-color: var(--biru-primer);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.rating-textarea:disabled {
+  opacity: 0.6;
+}
+
+.rating-char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.7rem;
+  color: var(--abu-500);
+  margin-top: 0.35rem;
+}
+
+/* Submit Button */
+.rating-tombol-kirim {
+  margin-top: 0.5rem;
+}
+
+.rating-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.rating-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success Card */
+.rating-kartu-sukses {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  animation: ratingFadeIn 0.5s ease;
+  border: 2px dashed #86efac;
+  background: #f0fdf4;
+}
+
+.rating-kartu-sukses-ikon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.rating-kartu-sukses h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #166534;
+  margin-bottom: 0.5rem;
+}
+
+.rating-kartu-sukses p {
+  color: #15803d;
+  font-size: 0.9rem;
+}
+
+/* Result Section (rated reviews) */
+.rating-result-section {
+  padding-top: 0.25rem;
+}
+
+.rating-ulasan-tampil {
+  margin-top: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--abu-50);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--biru-primer);
+  font-size: 0.9rem;
+  color: var(--abu-700);
+  font-style: italic;
+  line-height: 1.6;
+  position: relative;
+}
+
+.rating-ulasan-ikon {
+  color: var(--biru-primer);
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-style: normal;
+  margin-right: 0.25rem;
+  line-height: 1;
+}
+
+/* Empty State */
+.rating-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--abu-200);
+  box-shadow: var(--bayangan-sm);
+}
+
+.rating-empty-ikon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.rating-empty h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--abu-900);
+  margin-bottom: 0.5rem;
+}
+
+.rating-empty p {
+  color: var(--abu-500);
+  font-size: 0.9rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rating-kartu-header-info {
+    flex-wrap: wrap;
+  }
+
+  .rating-tab-wrapper {
+    flex-direction: row;
+  }
+
+  .rating-tab {
+    padding: 0.65rem 0.75rem;
+    font-size: 0.8rem;
+  }
 }
