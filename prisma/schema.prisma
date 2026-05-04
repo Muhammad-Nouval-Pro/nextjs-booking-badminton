@@ -1,152 +1,116 @@
-// =============================================
-// Schema Database — Sistem Booking Lapangan Badminton
-// Prisma v7 | PostgreSQL (Neon)
-// =============================================
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma/client"
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
-// =============================================
-// ENUM
-// =============================================
+model Pengguna {
+  idPengguna     String      @id @default(cuid())
+  nama           String
+  email          String      @unique
+  kataSandi      String
+  nomorHp        String?
+  peran          Peran       @default(PELANGGAN)
+  aktif          Boolean     @default(true)
+  dibuatPada     DateTime    @default(now())
+  diperbaruiPada DateTime    @updatedAt
+  pemesanan      Pemesanan[]
 
-// Peran pengguna dalam sistem
+  @@map("pengguna")
+}
+
+model Lapangan {
+  idLapangan     String         @id @default(cuid())
+  nama           String
+  deskripsi      String?
+  hargaPerJam    Decimal        @db.Decimal(10, 2)
+  status         StatusLapangan @default(TERSEDIA)
+  dibuatPada     DateTime       @default(now())
+  diperbaruiPada DateTime       @updatedAt
+  pemesanan      Pemesanan[]
+  slotWaktu      Slotwaktu[]
+
+  @@map("lapangan")
+}
+
+model Slotwaktu {
+  idSlotwaktu  String     @id @default(cuid())
+  lapanganId   String
+  tanggal      DateTime   @db.Date
+  jamMulai     String
+  jamSelesai   String
+  sudahDipesan Boolean    @default(false)
+  diblokir     Boolean    @default(false)
+  dibuatPada   DateTime   @default(now())
+  pemesanan    Pemesanan?
+  lapangan     Lapangan   @relation(fields: [lapanganId], references: [idLapangan], onDelete: Cascade)
+
+  @@unique([lapanganId, tanggal, jamMulai])
+  @@map("slot_waktu")
+}
+
+model Pemesanan {
+  idPemesanan    String          @id @default(cuid())
+  kodePemesanan  String          @unique
+  penggunaId     String
+  lapanganId     String
+  slotWaktuId    String          @unique
+  totalHarga     Decimal         @db.Decimal(10, 2)
+  status         StatusPemesanan @default(MENUNGGU)
+  catatan        String?
+  rating         Int?
+  ulasan         String?
+  dibuatPada     DateTime        @default(now())
+  diperbaruiPada DateTime        @updatedAt
+  pembayaran     Pembayaran?
+  lapangan       Lapangan        @relation(fields: [lapanganId], references: [idLapangan])
+  pengguna       Pengguna        @relation(fields: [penggunaId], references: [idPengguna])
+  slotWaktu      Slotwaktu       @relation(fields: [slotWaktuId], references: [idSlotwaktu])
+
+  @@map("pemesanan")
+}
+
+model Pembayaran {
+  idPembayaran       String           @id @default(cuid())
+  pemesananId        String           @unique
+  jumlah             Decimal          @db.Decimal(10, 2)
+  metodeBayar        String?
+  status             StatusPembayaran @default(MENUNGGU)
+  idOrderGateway     String?          @unique
+  idTransaksiGateway String?
+  responGateway      Json?
+  dibayarPada        DateTime?
+  kadaluarsaPada     DateTime?
+  dibuatPada         DateTime         @default(now())
+  pemesanan          Pemesanan        @relation(fields: [pemesananId], references: [idPemesanan])
+
+  @@map("pembayaran")
+}
+
 enum Peran {
   PEMILIK
   ADMIN
   PELANGGAN
 }
 
-// Status lapangan badminton
 enum StatusLapangan {
   TERSEDIA
   PERAWATAN
   TUTUP
 }
 
-// Status pemesanan lapangan
 enum StatusPemesanan {
-  MENUNGGU     // Menunggu pembayaran
-  DIKONFIRMASI // Pembayaran lunas, booking aktif
-  DIBATALKAN   // Dibatalkan (tanpa refund)
-  SELESAI      // Sesi bermain selesai
+  MENUNGGU
+  DIKONFIRMASI
+  DIBATALKAN
+  SELESAI
 }
 
-// Status pembayaran via Midtrans (tanpa refund)
 enum StatusPembayaran {
-  MENUNGGU // Menunggu pembayaran dari pelanggan
-  LUNAS    // Pembayaran berhasil dikonfirmasi
-  GAGAL    // Pembayaran gagal / kadaluarsa
+  MENUNGGU
+  LUNAS
+  GAGAL
 }
-
-// =============================================
-// MODEL
-// =============================================
-
-// Tabel semua pengguna: Pemilik, Admin, Pelanggan
-model Pengguna {
-  idPengguna     String   @id @default(cuid())
-  nama           String
-  email          String   @unique
-  kataSandi      String
-  nomorHp        String?
-  peran          Peran    @default(PELANGGAN)
-  aktif          Boolean  @default(true)
-  dibuatPada     DateTime @default(now())
-  diperbaruiPada DateTime @updatedAt
-
-  // Relasi
-  pemesanan Pemesanan[]
-
-  @@map("pengguna")
-}
-
-// Tabel lapangan badminton (total 5 lapangan dalam GOR)
-model Lapangan {
-  idLapangan     String         @id @default(cuid())
-  nama           String         // Contoh: "Lapangan 1", "Lapangan 2"
-  deskripsi      String?
-  hargaPerJam    Decimal        @db.Decimal(10, 2)
-  status         StatusLapangan @default(TERSEDIA)
-  dibuatPada     DateTime       @default(now())
-  diperbaruiPada DateTime       @updatedAt
-
-  // Relasi
-  slotWaktu Slotwaktu[]
-  pemesanan Pemesanan[]
-
-  @@map("lapangan")
-}
-
-// Tabel slot jadwal — dibuat manual oleh admin
-// Jam operasional: 09:00 – 22:00
-// Slot dinonaktifkan otomatis saat sudah dipesan
-model Slotwaktu {
-  idSlotwaktu  String   @id @default(cuid())
-  lapanganId   String
-  tanggal      DateTime @db.Date         // Tanggal slot (tanpa jam)
-  jamMulai     String                    // Format: "09:00"
-  jamSelesai   String                    // Format: "10:00"
-  sudahDipesan Boolean  @default(false)  // true = slot dinonaktifkan (full)
-  diblokir     Boolean  @default(false)  // Diblokir admin (libur, perawatan, dll)
-  dibuatPada   DateTime @default(now())
-
-  // Relasi
-  lapangan  Lapangan   @relation(fields: [lapanganId], references: [idLapangan], onDelete: Cascade)
-  pemesanan Pemesanan?
-
-  // Satu lapangan tidak boleh punya slot tanggal + jam yang sama
-  @@unique([lapanganId, tanggal, jamMulai])
-  @@map("slot_waktu")
-}
-
-// Tabel pemesanan oleh pelanggan
-model Pemesanan {
-  idPemesanan    String          @id @default(cuid())
-  kodePemesanan  String          @unique // Contoh: BK-20240409-001
-  penggunaId     String
-  lapanganId     String
-  slotWaktuId    String          @unique // Satu slot hanya bisa dipesan 1x
-  totalHarga     Decimal         @db.Decimal(10, 2)
-  status         StatusPemesanan @default(MENUNGGU)
-  catatan        String?         // Catatan opsional dari pelanggan
-  rating         Int?            // Rating dari pelanggan (1-5)
-  ulasan         String?         // Ulasan tambahan dari pelanggan
-  dibuatPada     DateTime        @default(now())
-  diperbaruiPada DateTime        @updatedAt
-
-  // Relasi
-  pengguna   Pengguna   @relation(fields: [penggunaId], references: [idPengguna])
-  lapangan   Lapangan   @relation(fields: [lapanganId], references: [idLapangan])
-  slotWaktu  Slotwaktu  @relation(fields: [slotWaktuId], references: [idSlotwaktu])
-  pembayaran Pembayaran?
-
-  @@map("pemesanan")
-}
-
-// Tabel pembayaran via Midtrans — tanpa fitur refund
-model Pembayaran {
-  idPembayaran       String           @id @default(cuid())
-  pemesananId        String           @unique // 1 pemesanan = 1 pembayaran
-  jumlah             Decimal          @db.Decimal(10, 2)
-  metodeBayar        String?          // Diisi otomatis oleh Midtrans (QRIS, Transfer, dll)
-  status             StatusPembayaran @default(MENUNGGU)
-  idOrderGateway     String?          @unique // order_id yang dikirim ke Midtrans
-  idTransaksiGateway String?          // transaction_id dari Midtrans
-  responGateway      Json?            // Raw response Midtrans (untuk audit & debug)
-  dibayarPada        DateTime?        // Waktu pembayaran berhasil
-  kadaluarsaPada     DateTime?        // Batas waktu pembayaran
-  dibuatPada         DateTime         @default(now())
-
-  // Relasi
-  pemesanan Pemesanan @relation(fields: [pemesananId], references: [idPemesanan])
-
-  @@map("pembayaran")
-}
-
