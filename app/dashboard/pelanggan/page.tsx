@@ -55,7 +55,7 @@ export default async function DashboardPelanggan() {
           <img
             src="/Garuda Nusantara.png"
             alt="GOR Garuda Nusantara"
-            style={{ width: "100%", height: "480px", objectFit: "cover", display: "block" }}
+            style={{ width: "100%", height: "300px", objectFit: "cover", display: "block" }}
           />
         </div>
 
@@ -301,7 +301,7 @@ export default async function DashboardPelanggan() {
             gap: "1.5rem"
           }}>
             {ulasanPelanggan.length > 0 ? ulasanPelanggan.map((u) => (
-              <div key={u.id} style={{
+              <div key={u.idPemesanan} style={{
                 background: "white",
                 padding: "1.5rem",
                 borderRadius: "1rem",

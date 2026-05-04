@@ -63,15 +63,15 @@ export function TabelAdmin({ daftarAdmin }: { daftarAdmin: any[] }) {
               </tr>
             ) : (
               daftarAdmin.map((a) => (
-                <tr key={a.id}>
-                  <td style={{ fontSize: "0.8rem", color: "var(--abu-500)" }}>{a.id.slice(0, 8)}</td>
+                <tr key={a.idPengguna}>
+                  <td style={{ fontSize: "0.8rem", color: "var(--abu-500)" }}>{a.idPengguna.slice(0, 8)}</td>
                   <td style={{ fontWeight: 600 }}>{a.nama}</td>
                   <td>{a.email}</td>
                   <td style={{ textAlign: "right" }}>
                     <button
                       onClick={async () => {
                         if (confirm(`Yakin ingin menghapus admin ${a.nama}?`)) {
-                          const res = await hapusAdmin(a.id);
+                          const res = await hapusAdmin(a.idPengguna);
                           if (!res.sukses) alert(res.pesan);
                         }
                       }}

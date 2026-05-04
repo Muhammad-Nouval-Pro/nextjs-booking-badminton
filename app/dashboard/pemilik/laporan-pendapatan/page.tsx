@@ -62,7 +62,7 @@ export default async function LaporanPendapatanPemilik() {
             <table className="tabel">
               <thead>
                 <tr>
-                  <th>ID Validasi</th>
+                  <th>ID Pesanan</th>
                   <th>Tanggal Dibayar</th>
                   <th>Customer</th>
                   <th>Metode</th>
@@ -77,8 +77,8 @@ export default async function LaporanPendapatanPemilik() {
                   </tr>
                 ) : (
                   pembayaranFix.map((p) => (
-                    <tr key={p.id}>
-                      <td style={{ fontSize: "0.8rem", color: "var(--abu-500)", fontFamily: "monospace" }}>{p.id.split("-")[0]}</td>
+                    <tr key={p.idPembayaran}>
+                      <td style={{ fontWeight: 700, fontFamily: "monospace" }}>{p.pemesanan?.kodePemesanan || "-"}</td>
                       <td style={{ fontWeight: 600 }}>
                         {p.dibayarPada ? 
                           new Date(p.dibayarPada).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) : 

@@ -8,7 +8,7 @@ export default async function KelolaAdmin() {
   });
 
   const daftarAdmin = daftarAdminRaw.map((a) => ({
-    id: a.id,
+    idPengguna: a.idPengguna,
     nama: a.nama,
     email: a.email,
   }));

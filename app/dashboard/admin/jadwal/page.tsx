@@ -3,7 +3,7 @@ import { FormGenerateJadwal, TabelJadwal } from "./client";
 
 export default async function KelolaJadwal() {
   const daftarLapangan = await prisma.lapangan.findMany({
-    select: { id: true, nama: true },
+    select: { idLapangan: true, nama: true },
     orderBy: { nama: "asc" }
   });
 

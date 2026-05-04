@@ -19,7 +19,7 @@ export async function POST(request: Request) {
         const { pemesananId } = await request.json();
 
         const pemesanan = await prisma.pemesanan.findUnique({
-            where: { id: pemesananId, penggunaId: sesi.penggunaId },
+            where: { idPemesanan: pemesananId, penggunaId: sesi.penggunaId },
             include: { pembayaran: true }
         });
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         // Update database
         await prisma.$transaction(async (tx) => {
             await tx.pembayaran.update({
-                where: { id: pemesanan.pembayaran!.id },
+                where: { idPembayaran: pemesanan.pembayaran!.idPembayaran },
                 data: {
                     status: statusPembayaran,
                     idTransaksiGateway: status.transaction_id,
@@ -58,13 +58,13 @@ export async function POST(request: Request) {
             });
 
             await tx.pemesanan.update({
-                where: { id: pemesanan.id },
+                where: { idPemesanan: pemesanan.idPemesanan },
                 data: { status: statusPemesanan }
             });
 
             if (statusPemesanan === "DIBATALKAN") {
                 await tx.slotwaktu.update({
-                    where: { id: pemesanan.slotWaktuId },
+                    where: { idSlotwaktu: pemesanan.slotWaktuId },
                     data: { sudahDipesan: false }
                 });
             }

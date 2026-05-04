@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { tambahLapangan, hapusLapangan } from "@/app/actions/admin";
+import { tambahLapangan, hapusLapangan, ubahStatusLapangan } from "@/app/actions/admin";
 import { useEffect, useState } from "react";
 
 // Karena ini Client Component yang butuh manggil data, 
@@ -67,26 +67,47 @@ export function TabelLapangan({ daftarLapangan }: { daftarLapangan: any[] }) {
               <th>Nama Lapangan</th>
               <th>Tipe</th>
               <th>Harga/Jam</th>
+              <th>Status</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {daftarLapangan.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "var(--abu-500)" }}>Belum ada data lapangan</td>
+                <td colSpan={6} style={{ textAlign: "center", padding: "2rem", color: "var(--abu-500)" }}>Belum ada data lapangan</td>
               </tr>
             ) : (
               daftarLapangan.map((l) => (
-                <tr key={l.id}>
-                  <td style={{ fontSize: "0.8rem", color: "var(--abu-500)" }}>{l.id.slice(0, 8)}</td>
+                <tr key={l.idLapangan}>
+                  <td style={{ fontSize: "0.8rem", color: "var(--abu-500)" }}>{l.idLapangan.slice(0, 8)}</td>
                   <td style={{ fontWeight: 600 }}>{toTitleCase(l.nama)}</td>
                   <td><span className="badge badge-abu">{toTitleCase(l.deskripsi) || "Lantai Vinyl"}</span></td>
                   <td style={{ color: "var(--biru-primer)", fontWeight: 600 }}>{formatRupiah(Number(l.hargaPerJam))}</td>
                   <td>
+                    <select
+                      value={l.status}
+                      onChange={(e) => ubahStatusLapangan(l.idLapangan, e.target.value as any)}
+                      style={{
+                        padding: "0.4rem",
+                        borderRadius: "var(--radius-sm)",
+                        border: "1px solid var(--abu-200)",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        backgroundColor: l.status === "TERSEDIA" ? "#f0fdf4" : l.status === "PERAWATAN" ? "#fefce8" : "#fef2f2",
+                        color: l.status === "TERSEDIA" ? "#166534" : l.status === "PERAWATAN" ? "#854d0e" : "#991b1b",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="TERSEDIA">🟢 Tersedia</option>
+                      <option value="PERAWATAN">🟡 Perawatan</option>
+                      <option value="TUTUP">🔴 Tutup</option>
+                    </select>
+                  </td>
+                  <td>
                     <button
                       onClick={() => {
                         if (confirm("Yakin ingin menghapus lapangan ini?")) {
-                          hapusLapangan(l.id);
+                          hapusLapangan(l.idLapangan);
                         }
                       }}
                       style={{

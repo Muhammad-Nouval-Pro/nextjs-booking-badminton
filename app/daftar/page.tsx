@@ -16,7 +16,7 @@ export default function HalamanDaftar() {
       {/* Panel Kiri */}
       <div className="auth-kiri">
         <div className="auth-logo">
-          <div className="auth-logo-ikon">🏸</div>
+          {/* <div className="auth-logo-ikon">🏸</div> */}
           <span className="auth-logo-teks">GOR Garuda Nusantara </span>
         </div>
         <div className="auth-kiri-konten">
@@ -111,7 +111,7 @@ export default function HalamanDaftar() {
                   id="nomorHp-daftar"
                   name="nomorHp"
                   type="tel"
-                  placeholder="08xxxxxxxxxx"
+                  placeholder="Nomor HP Anda"
                   className={`form-input ${state?.errors?.nomorHp ? "error" : ""}`}
                   autoComplete="tel"
                 />
@@ -155,9 +155,9 @@ export default function HalamanDaftar() {
             </form>
           ) : (
             <div style={{ marginTop: "1.5rem" }}>
-               <Link href="/masuk" className="tombol-primer" style={{ display: "block", textDecoration: "none", textAlign: "center" }}>
-                 Masuk ke Akun
-               </Link>
+              <Link href="/masuk" className="tombol-primer" style={{ display: "block", textDecoration: "none", textAlign: "center" }}>
+                Masuk ke Akun
+              </Link>
             </div>
           )}
 

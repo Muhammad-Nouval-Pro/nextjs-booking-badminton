@@ -58,7 +58,7 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
   return (
     <div className="grid-statistik">
       {dataPemesanan.map(p => (
-        <div key={p.id} className="kartu" style={{ padding: "1.5rem" }}>
+        <div key={p.idPemesanan} className="kartu" style={{ padding: "1.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
             <span style={{ fontFamily: "monospace", color: "var(--abu-500)", fontWeight: 600 }}>#{p.kodePemesanan}</span>
             {p.status === "MENUNGGU" && <span className="badge badge-kuning">Belum Dibayar</span>}
@@ -86,18 +86,18 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
               <button 
                 className="tombol-primer" 
                 style={{ width: "100%" }}
-                disabled={prosesId === p.id}
-                onClick={() => aksiBayar(p.id)}
+                disabled={prosesId === p.idPemesanan}
+                onClick={() => aksiBayar(p.idPemesanan)}
               >
-                {prosesId === p.id ? "Memproses..." : "Bayar Sekarang (Midtrans)"}
+                {prosesId === p.idPemesanan ? "Memproses..." : "Bayar Sekarang (Midtrans)"}
               </button>
               
               <button 
                 className="tombol-outline" 
                 style={{ width: "100%", fontSize: "0.85rem", padding: "0.5rem" }}
-                disabled={prosesId === `cek-${p.id}`}
+                disabled={prosesId === `cek-${p.idPemesanan}`}
                 onClick={async () => {
-                   setProsesId(`cek-${p.id}`);
+                   setProsesId(`cek-${p.idPemesanan}`);
                    try {
                      const res = await fetch("/api/payment/status", {
                        method: "POST",
@@ -118,7 +118,7 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
                    }
                 }}
               >
-                {prosesId === `cek-${p.id}` ? "Mengecek..." : "🔄 Cek Status Pembayaran"}
+                {prosesId === `cek-${p.idPemesanan}` ? "Mengecek..." : "🔄 Cek Status Pembayaran"}
               </button>
             </div>
           )}
@@ -137,7 +137,7 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
                 <button 
                   className="tombol-primer" 
                   style={{ width: "100%", background: "var(--biru-primer)" }} 
-                  disabled={prosesId === p.id}
+                  disabled={prosesId === p.idPemesanan}
                   onClick={async () => {
                     const ratingStr = prompt("Beri rating 1-5:");
                     if (!ratingStr) return;
@@ -147,15 +147,15 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
                       return;
                     }
                     const ulasan = prompt("Berikan ulasan Anda (opsional):") || "";
-                    setProsesId(p.id);
+                    setProsesId(p.idPemesanan);
                     const { beriRating } = await import("@/app/actions/pelanggan");
-                    const res = await beriRating(p.id, rating, ulasan);
+                    const res = await beriRating(p.idPemesanan, rating, ulasan);
                     if (res.sukses) alert("Terima kasih atas ulasan Anda!");
                     else alert("Gagal mengirim ulasan");
                     setProsesId(null);
                   }}
                 >
-                  {prosesId === p.id ? "Mengirim..." : "Beri Ulasan & Rating"}
+                  {prosesId === p.idPemesanan ? "Mengirim..." : "Beri Ulasan & Rating"}
                 </button>
               )}
             </div>
@@ -171,7 +171,7 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
               <button 
                 className="tombol-outline" 
                 style={{ width: "100%", borderColor: "var(--biru-primer)", color: "var(--biru-primer)" }}
-                onClick={() => router.push(`/dashboard/pelanggan/riwayat/reschedule/${p.id}`)}
+                onClick={() => router.push(`/dashboard/pelanggan/riwayat/reschedule/${p.idPemesanan}`)}
               >
                 🔄 Reschedule Jadwal
               </button>

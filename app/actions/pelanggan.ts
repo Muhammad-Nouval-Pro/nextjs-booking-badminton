@@ -11,7 +11,7 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
 
   try {
     // Pastikan slot waktu masih tersedia
-    const slot = await prisma.slotwaktu.findUnique({ where: { id: slotId } });
+    const slot = await prisma.slotwaktu.findUnique({ where: { idSlotwaktu: slotId } });
     if (!slot || slot.sudahDipesan || slot.diblokir) {
       return { sukses: false, pesan: "Slot waktu sudah tidak tersedia" };
     }
@@ -23,7 +23,7 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
     const pesanan = await prisma.$transaction(async (tx) => {
       // 1. Tandai slot sudah dipesan
       await tx.slotwaktu.update({
-        where: { id: slotId },
+        where: { idSlotwaktu: slotId },
         data: { sudahDipesan: true }
       });
 
@@ -42,7 +42,7 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
       // 3. Buat tagihan pembayaran
       await tx.pembayaran.create({
         data: {
-          pemesananId: p.id,
+          pemesananId: p.idPemesanan,
           jumlah: totalHarga,
           status: "MENUNGGU",
           metodeBayar: "Transfer Manual"
@@ -53,7 +53,7 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
     });
 
     revalidatePath("/dashboard/pelanggan/pesan");
-    return { sukses: true, pesananId: pesanan.id };
+    return { sukses: true, pesananId: pesanan.idPemesanan };
   } catch (error) {
     console.error("Booking err:", error);
     return { sukses: false, pesan: "Terjadi kesalahan sistem, silakan coba lagi." };
@@ -64,7 +64,7 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
 export async function bayarPesanan(pembayaranId: string) {
   try {
     await prisma.pembayaran.update({
-      where: { id: pembayaranId },
+      where: { idPembayaran: pembayaranId },
       data: { status: "MENUNGGU" } // Tetap menunggu verifikasi admin, namun bisa kita buat log / notif
     });
     // Jika upload berhasil
@@ -81,7 +81,7 @@ export async function beriRating(pemesananId: string, rating: number, ulasan: st
 
   try {
     await prisma.pemesanan.update({
-      where: { id: pemesananId, penggunaId: sesi.penggunaId },
+      where: { idPemesanan: pemesananId, penggunaId: sesi.penggunaId },
       data: { rating, ulasan }
     });
     revalidatePath("/dashboard/pelanggan/riwayat");
@@ -105,7 +105,7 @@ export async function gantiPassword(formData: FormData) {
   if (!passwordLama || !passwordBaru) return { success: false, message: "Lengkapi form" };
 
   try {
-    const pengguna = await prisma.pengguna.findUnique({ where: { id: sesi.penggunaId } });
+    const pengguna = await prisma.pengguna.findUnique({ where: { idPengguna: sesi.penggunaId } });
     if (!pengguna) return { success: false, message: "Pengguna tidak ditemukan" };
 
     const cocok = await bcrypt.compare(passwordLama, pengguna.kataSandi);
@@ -113,7 +113,7 @@ export async function gantiPassword(formData: FormData) {
 
     const kataSandiHash = await bcrypt.hash(passwordBaru, 12);
     await prisma.pengguna.update({
-      where: { id: sesi.penggunaId },
+      where: { idPengguna: sesi.penggunaId },
       data: { kataSandi: kataSandiHash }
     });
 
@@ -129,7 +129,7 @@ export async function reschedulePesanan(pemesananId: string, slotBaruId: string)
 
   try {
     const pesanan = await prisma.pemesanan.findUnique({
-      where: { id: pemesananId, penggunaId: sesi.penggunaId },
+      where: { idPemesanan: pemesananId, penggunaId: sesi.penggunaId },
       include: { slotWaktu: true }
     });
 
@@ -138,7 +138,7 @@ export async function reschedulePesanan(pemesananId: string, slotBaruId: string)
       return { sukses: false, pesan: "Status pesanan tidak memungkinkan untuk reschedule" };
     }
 
-    const slotBaru = await prisma.slotwaktu.findUnique({ where: { id: slotBaruId } });
+    const slotBaru = await prisma.slotwaktu.findUnique({ where: { idSlotwaktu: slotBaruId } });
     if (!slotBaru || slotBaru.sudahDipesan || slotBaru.diblokir) {
       return { sukses: false, pesan: "Slot baru sudah tidak tersedia" };
     }
@@ -147,17 +147,17 @@ export async function reschedulePesanan(pemesananId: string, slotBaruId: string)
     await prisma.$transaction([
       // 1. Lepas slot lama
       prisma.slotwaktu.update({
-        where: { id: pesanan.slotWaktuId },
+        where: { idSlotwaktu: pesanan.slotWaktuId },
         data: { sudahDipesan: false }
       }),
       // 2. Ambil slot baru
       prisma.slotwaktu.update({
-        where: { id: slotBaruId },
+        where: { idSlotwaktu: slotBaruId },
         data: { sudahDipesan: true }
       }),
       // 3. Update data pemesanan
       prisma.pemesanan.update({
-        where: { id: pemesananId },
+        where: { idPemesanan: pemesananId },
         data: { 
           slotWaktuId: slotBaruId,
           lapanganId: slotBaru.lapanganId 

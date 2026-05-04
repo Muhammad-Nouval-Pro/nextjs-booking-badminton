@@ -42,7 +42,7 @@ export function ListReschedule({
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
       {jadwalLapangan.map((j) => (
         <div 
-          key={j.id} 
+          key={j.idSlotwaktu} 
           className="kartu" 
           style={{ 
             padding: "1.5rem", 
@@ -73,10 +73,10 @@ export function ListReschedule({
               background: "linear-gradient(135deg, var(--biru-primer), var(--biru-muda))",
               boxShadow: "var(--bayangan-biru)"
             }}
-            disabled={loadingId === j.id}
-            onClick={() => handleReschedule(j.id)}
+            disabled={loadingId === j.idSlotwaktu}
+            onClick={() => handleReschedule(j.idSlotwaktu)}
           >
-            {loadingId === j.id ? "Memproses..." : "Pilih Jadwal Ini"}
+            {loadingId === j.idSlotwaktu ? "Memproses..." : "Pilih Jadwal Ini"}
           </button>
         </div>
       ))}

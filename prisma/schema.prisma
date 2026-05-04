@@ -10,8 +10,6 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // =============================================
@@ -47,21 +45,13 @@ enum StatusPembayaran {
   GAGAL    // Pembayaran gagal / kadaluarsa
 }
 
-// Tipe notifikasi sistem
-enum TipeNotifikasi {
-  BOOKING_DIKONFIRMASI
-  PEMBAYARAN_BERHASIL
-  BOOKING_DIBATALKAN
-  PENGINGAT
-}
-
 // =============================================
 // MODEL
 // =============================================
 
 // Tabel semua pengguna: Pemilik, Admin, Pelanggan
 model Pengguna {
-  id             String   @id @default(cuid())
+  idPengguna     String   @id @default(cuid())
   nama           String
   email          String   @unique
   kataSandi      String
@@ -72,15 +62,14 @@ model Pengguna {
   diperbaruiPada DateTime @updatedAt
 
   // Relasi
-  pemesanan  Pemesanan[]
-  notifikasi Notifikasi[]
+  pemesanan Pemesanan[]
 
   @@map("pengguna")
 }
 
 // Tabel lapangan badminton (total 5 lapangan dalam GOR)
 model Lapangan {
-  id             String         @id @default(cuid())
+  idLapangan     String         @id @default(cuid())
   nama           String         // Contoh: "Lapangan 1", "Lapangan 2"
   deskripsi      String?
   hargaPerJam    Decimal        @db.Decimal(10, 2)
@@ -99,7 +88,7 @@ model Lapangan {
 // Jam operasional: 09:00 – 22:00
 // Slot dinonaktifkan otomatis saat sudah dipesan
 model Slotwaktu {
-  id           String   @id @default(cuid())
+  idSlotwaktu  String   @id @default(cuid())
   lapanganId   String
   tanggal      DateTime @db.Date         // Tanggal slot (tanpa jam)
   jamMulai     String                    // Format: "09:00"
@@ -109,7 +98,7 @@ model Slotwaktu {
   dibuatPada   DateTime @default(now())
 
   // Relasi
-  lapangan  Lapangan   @relation(fields: [lapanganId], references: [id], onDelete: Cascade)
+  lapangan  Lapangan   @relation(fields: [lapanganId], references: [idLapangan], onDelete: Cascade)
   pemesanan Pemesanan?
 
   // Satu lapangan tidak boleh punya slot tanggal + jam yang sama
@@ -119,7 +108,7 @@ model Slotwaktu {
 
 // Tabel pemesanan oleh pelanggan
 model Pemesanan {
-  id             String          @id @default(cuid())
+  idPemesanan    String          @id @default(cuid())
   kodePemesanan  String          @unique // Contoh: BK-20240409-001
   penggunaId     String
   lapanganId     String
@@ -133,9 +122,9 @@ model Pemesanan {
   diperbaruiPada DateTime        @updatedAt
 
   // Relasi
-  pengguna   Pengguna   @relation(fields: [penggunaId], references: [id])
-  lapangan   Lapangan   @relation(fields: [lapanganId], references: [id])
-  slotWaktu  Slotwaktu  @relation(fields: [slotWaktuId], references: [id])
+  pengguna   Pengguna   @relation(fields: [penggunaId], references: [idPengguna])
+  lapangan   Lapangan   @relation(fields: [lapanganId], references: [idLapangan])
+  slotWaktu  Slotwaktu  @relation(fields: [slotWaktuId], references: [idSlotwaktu])
   pembayaran Pembayaran?
 
   @@map("pemesanan")
@@ -143,7 +132,7 @@ model Pemesanan {
 
 // Tabel pembayaran via Midtrans — tanpa fitur refund
 model Pembayaran {
-  id                 String           @id @default(cuid())
+  idPembayaran       String           @id @default(cuid())
   pemesananId        String           @unique // 1 pemesanan = 1 pembayaran
   jumlah             Decimal          @db.Decimal(10, 2)
   metodeBayar        String?          // Diisi otomatis oleh Midtrans (QRIS, Transfer, dll)
@@ -156,23 +145,8 @@ model Pembayaran {
   dibuatPada         DateTime         @default(now())
 
   // Relasi
-  pemesanan Pemesanan @relation(fields: [pemesananId], references: [id])
+  pemesanan Pemesanan @relation(fields: [pemesananId], references: [idPemesanan])
 
   @@map("pembayaran")
 }
 
-// Tabel notifikasi sistem ke pengguna
-model Notifikasi {
-  id          String         @id @default(cuid())
-  penggunaId  String
-  judul       String
-  pesan       String
-  tipe        TipeNotifikasi
-  sudahDibaca Boolean        @default(false)
-  dibuatPada  DateTime       @default(now())
-
-  // Relasi
-  pengguna Pengguna @relation(fields: [penggunaId], references: [id])
-
-  @@map("notifikasi")
-}

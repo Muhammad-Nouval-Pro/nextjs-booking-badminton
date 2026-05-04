@@ -46,11 +46,25 @@ export async function tambahLapangan(prevState: any, formData: FormData) {
 
 export async function hapusLapangan(id: string) {
   try {
-    await prisma.lapangan.delete({ where: { id } });
+    await prisma.lapangan.delete({ where: { idLapangan: id } });
     revalidatePath("/dashboard/admin/lapangan");
   } catch (error) {
     // Abaikan jika error constraint
     console.error(error);
+  }
+}
+
+export async function ubahStatusLapangan(id: string, status: "TERSEDIA" | "PERAWATAN" | "TUTUP") {
+  try {
+    await prisma.lapangan.update({
+      where: { idLapangan: id },
+      data: { status },
+    });
+    revalidatePath("/dashboard/admin/lapangan");
+    return { sukses: true };
+  } catch (error) {
+    console.error(error);
+    return { sukses: false };
   }
 }
 
@@ -126,14 +140,14 @@ export async function autoGenerateJadwal(tanggalStr: string, lapanganId: string)
 
 export async function ubahStatusJadwal(id: string, diblokir: boolean) {
   await prisma.slotwaktu.update({
-    where: { id },
+    where: { idSlotwaktu: id },
     data: { diblokir },
   });
   revalidatePath("/dashboard/admin/jadwal");
 }
 
 export async function hapusJadwal(id: string) {
-  await prisma.slotwaktu.delete({ where: { id } });
+  await prisma.slotwaktu.delete({ where: { idSlotwaktu: id } });
   revalidatePath("/dashboard/admin/jadwal");
 }
 
@@ -144,13 +158,13 @@ export async function konfirmasiPembayaran(pembayaranId: string, pemesananId: st
   try {
     // Set pembayaran LUNAS
     await prisma.pembayaran.update({
-      where: { id: pembayaranId },
+      where: { idPembayaran: pembayaranId },
       data: { status: "LUNAS", dibayarPada: new Date() },
     });
 
     // Set pemesanan DIKONFIRMASI
     await prisma.pemesanan.update({
-      where: { id: pemesananId },
+      where: { idPemesanan: pemesananId },
       data: { status: "DIKONFIRMASI" },
     });
 
@@ -166,25 +180,25 @@ export async function tolakPembayaran(pembayaranId: string, pemesananId: string)
   try {
     // Set pembayaran GAGAL
     await prisma.pembayaran.update({
-      where: { id: pembayaranId },
+      where: { idPembayaran: pembayaranId },
       data: { status: "GAGAL" },
     });
 
     // Set pemesanan DIBATALKAN
     await prisma.pemesanan.update({
-      where: { id: pemesananId },
+      where: { idPemesanan: pemesananId },
       data: { status: "DIBATALKAN" },
     });
 
     // Kembalikan ketersediaan slotwaktu
     const pesanan = await prisma.pemesanan.findUnique({
-      where: { id: pemesananId },
+      where: { idPemesanan: pemesananId },
       include: { slotWaktu: true },
     });
 
     if (pesanan && pesanan.slotWaktu) {
       await prisma.slotwaktu.update({
-        where: { id: pesanan.slotWaktu.id },
+        where: { idSlotwaktu: pesanan.slotWaktu.idSlotwaktu },
         data: { sudahDipesan: false },
       });
     }
@@ -199,7 +213,7 @@ export async function tolakPembayaran(pembayaranId: string, pemesananId: string)
 export async function selesaikanBooking(pemesananId: string) {
   try {
     await prisma.pemesanan.update({
-      where: { id: pemesananId },
+      where: { idPemesanan: pemesananId },
       data: { status: "SELESAI" },
     });
     revalidatePath("/dashboard/admin/booking");
@@ -207,5 +221,76 @@ export async function selesaikanBooking(pemesananId: string) {
     return { sukses: true };
   } catch (e) {
     return { sukses: false };
+  }
+}
+
+export async function bookingLangsung(slotId: string, namaCustomer: string) {
+  try {
+    const slot = await prisma.slotwaktu.findUnique({
+      where: { idSlotwaktu: slotId },
+      include: { lapangan: true }
+    });
+
+    if (!slot || slot.sudahDipesan || slot.diblokir) {
+      return { sukses: false, pesan: "Slot tidak tersedia" };
+    }
+
+    // Cari atau buat user "Guest" untuk offline booking
+    let userGuest = await prisma.pengguna.findFirst({
+      where: { email: "guest@gor.com" }
+    });
+
+    if (!userGuest) {
+      userGuest = await prisma.pengguna.create({
+        data: {
+          nama: "Customer Offline",
+          email: "guest@gor.com",
+          kataSandi: "offline-booking-no-password", // Tidak bisa login
+          peran: "PELANGGAN",
+          aktif: true
+        }
+      });
+    }
+
+    const kodeUnik = `OFF-${Date.now().toString().slice(-6)}`;
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Update slot
+      await tx.slotwaktu.update({
+        where: { idSlotwaktu: slotId },
+        data: { sudahDipesan: true }
+      });
+
+      // 2. Buat Pemesanan (Langsung DIKONFIRMASI)
+      const p = await tx.pemesanan.create({
+        data: {
+          kodePemesanan: kodeUnik,
+          penggunaId: userGuest.idPengguna,
+          lapanganId: slot.lapanganId,
+          slotWaktuId: slotId,
+          totalHarga: slot.lapangan.hargaPerJam,
+          status: "DIKONFIRMASI",
+          ulasan: `Booking Langsung: ${namaCustomer}`
+        }
+      });
+
+      // 3. Buat Pembayaran (Langsung LUNAS)
+      await tx.pembayaran.create({
+        data: {
+          pemesananId: p.idPemesanan,
+          jumlah: slot.lapangan.hargaPerJam,
+          status: "LUNAS",
+          metodeBayar: "Tunai (Offline)",
+          dibayarPada: new Date()
+        }
+      });
+    });
+
+    revalidatePath("/dashboard/admin/jadwal");
+    revalidatePath("/dashboard/admin/booking");
+    return { sukses: true };
+  } catch (error) {
+    console.error(error);
+    return { sukses: false, pesan: "Terjadi kesalahan sistem" };
   }
 }

@@ -12,6 +12,11 @@ export default async function VerifikasiPembayaran() {
   // Karena enum urutan belum tentu yang M di atas, kita filter "MENUNGGU" di client/API,
   // untuk simplenya kita order by dibuatPada descending.
   const pembayaranFix = await prisma.pembayaran.findMany({
+    include: {
+      pemesanan: {
+        select: { kodePemesanan: true }
+      }
+    },
     orderBy: { 
       dibuatPada: "desc"
     }

@@ -8,7 +8,7 @@ export default async function KelolaPelanggan() {
   });
 
   const daftarPelanggan = daftarPelangganRaw.map((p) => ({
-    id: p.id,
+    idPengguna: p.idPengguna,
     nama: p.nama,
     email: p.email,
     nomorHp: p.nomorHp,

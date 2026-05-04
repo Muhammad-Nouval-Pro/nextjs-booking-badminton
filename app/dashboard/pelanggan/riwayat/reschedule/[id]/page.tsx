@@ -14,7 +14,7 @@ export default async function HalamanReschedule(props: {
 
   // Ambil data pemesanan lama
   const pesanan = await prisma.pemesanan.findUnique({
-    where: { id: params.id, penggunaId: sesi.penggunaId },
+    where: { idPemesanan: params.id, penggunaId: sesi.penggunaId },
     include: { slotWaktu: { include: { lapangan: true } } }
   });
 
@@ -100,7 +100,7 @@ export default async function HalamanReschedule(props: {
         </div>
 
         <h3 style={{ marginBottom: "1.25rem" }}>Pilih Jadwal Pengganti</h3>
-        <ListReschedule jadwalLapangan={jadwal} pemesananId={pesanan.id} />
+        <ListReschedule jadwalLapangan={jadwal} pemesananId={pesanan.idPemesanan} />
       </div>
     </>
   );

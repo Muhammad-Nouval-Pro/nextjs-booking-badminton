@@ -92,7 +92,7 @@ export async function login(
   }
 
   // 5. Buat sesi dan redirect sesuai peran
-  await buatSesi(pengguna.id, pengguna.peran);
+  await buatSesi(pengguna.idPengguna, pengguna.peran);
 
   if (pengguna.peran === "PEMILIK") redirect("/dashboard/pemilik");
   if (pengguna.peran === "ADMIN") redirect("/dashboard/admin");

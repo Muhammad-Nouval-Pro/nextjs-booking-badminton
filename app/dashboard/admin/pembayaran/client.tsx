@@ -14,7 +14,7 @@ export function TabelPembayaranClient({ pembayaran }: { pembayaran: any[] }) {
         <table className="tabel">
           <thead>
             <tr>
-              <th>ID Validasi</th>
+              <th>ID Pesanan</th>
               <th>Metode</th>
               <th>Total</th>
               <th>Status</th>
@@ -28,8 +28,8 @@ export function TabelPembayaranClient({ pembayaran }: { pembayaran: any[] }) {
               </tr>
             ) : (
               pembayaran.map((p) => (
-                <tr key={p.id}>
-                  <td style={{ fontSize: "0.8rem", color: "var(--abu-500)", fontFamily: "monospace" }}>{p.id.split("-")[0]}</td>
+                <tr key={p.idPembayaran}>
+                  <td style={{ fontWeight: 700, fontFamily: "monospace" }}>{p.pemesanan?.kodePemesanan || "-"}</td>
                   <td style={{ fontWeight: 600 }}>{p.metodeBayar || p.metode || "Manual"}</td>
                   <td style={{ fontWeight: 600, color: "var(--biru-primer)" }}>{formatRupiah(Number(p.jumlah))}</td>
                   <td>
@@ -42,7 +42,7 @@ export function TabelPembayaranClient({ pembayaran }: { pembayaran: any[] }) {
                       <>
                         <button
                           onClick={() => {
-                            if (confirm("Konfirmasi pembayaran ini valid dan lunas?")) konfirmasiPembayaran(p.id, p.pemesananId);
+                            if (confirm("Konfirmasi pembayaran ini valid dan lunas?")) konfirmasiPembayaran(p.idPembayaran, p.pemesananId);
                           }}
                           style={{
                             padding: "0.4rem 0.75rem",
@@ -58,7 +58,7 @@ export function TabelPembayaranClient({ pembayaran }: { pembayaran: any[] }) {
                         </button>
                         <button
                           onClick={() => {
-                            if (confirm("Tolak pembayaran ini dan batalkan pesanan?")) tolakPembayaran(p.id, p.pemesananId);
+                            if (confirm("Tolak pembayaran ini dan batalkan pesanan?")) tolakPembayaran(p.idPembayaran, p.pemesananId);
                           }}
                           style={{
                             padding: "0.4rem 0.75rem",

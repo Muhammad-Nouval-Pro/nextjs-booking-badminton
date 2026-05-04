@@ -21,7 +21,7 @@ export function TabelPelanggan({ daftarPelanggan }: { daftarPelanggan: any[] }) 
               </tr>
             ) : (
               daftarPelanggan.map((p) => (
-                <tr key={p.id}>
+                <tr key={p.idPengguna}>
                   <td style={{ fontWeight: 600 }}>{p.nama}</td>
                   <td>{p.email}</td>
                   <td>{p.nomorHp || "-"}</td>

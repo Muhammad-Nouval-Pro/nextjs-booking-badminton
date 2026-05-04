@@ -43,8 +43,8 @@ export default async function LaporanBookingPemilik() {
                   </tr>
                 ) : (
                   pemesanan.map((p) => (
-                    <tr key={p.id}>
-                      <td style={{ fontSize: "0.8rem", color: "var(--abu-500)", fontFamily: "monospace" }}>{p.id.split("-")[0]}</td>
+                    <tr key={p.idPemesanan}>
+                      <td style={{ fontWeight: 700, color: "var(--abu-900)", fontFamily: "monospace" }}>{p.kodePemesanan}</td>
                       <td>
                         <div style={{ fontWeight: 600 }}>{p.pengguna.nama}</div>
                         <div style={{ fontSize: "0.75rem", color: "var(--abu-500)" }}>{p.pengguna.nomorHp || "-"}</div>

@@ -16,7 +16,7 @@ export default function HalamanMasuk() {
       {/* Panel Kiri */}
       <div className="auth-kiri">
         <div className="auth-logo">
-          <div className="auth-logo-ikon">🏸</div>
+          {/* <div className="auth-logo-ikon">🏸</div> */}
           <span className="auth-logo-teks">GOR Garuda Nusantara</span>
         </div>
         <div className="auth-kiri-konten">

@@ -1,20 +1,58 @@
 import { prisma } from "@/app/lib/db";
-
-import { TombolSelesai } from "./client";
+import { TabelBooking } from "./client";
 
 export default async function SemuaBooking() {
-  const pemesanan = await prisma.pemesanan.findMany({
+  const pemesananRaw = await prisma.pemesanan.findMany({
     include: {
       pengguna: { select: { nama: true, nomorHp: true } },
-      pembayaran: true,
       slotWaktu: {
-        include: { lapangan: true }
-      }
+        include: { lapangan: true },
+      },
     },
-    orderBy: { dibuatPada: "desc" }
+    orderBy: { dibuatPada: "desc" },
   });
 
-  const formatRupiah = (angka: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(angka);
+  // Otomatisasi: Update status menjadi SELESAI jika waktu main sudah lewat
+  const sekarang = new Date();
+  await Promise.all(
+    pemesananRaw.map(async (p) => {
+      if (p.status === "DIKONFIRMASI" && p.slotWaktu) {
+        const [jam, menit] = p.slotWaktu.jamSelesai.split(":").map(Number);
+        const waktuSelesai = new Date(p.slotWaktu.tanggal);
+        waktuSelesai.setHours(jam, menit, 0, 0);
+
+        if (sekarang > waktuSelesai) {
+          await prisma.pemesanan.update({
+            where: { idPemesanan: p.idPemesanan },
+            data: { status: "SELESAI" },
+          });
+          p.status = "SELESAI";
+        }
+      }
+    })
+  );
+
+  // Serialize ke plain object agar bisa dikirim ke Client Component
+  const pemesanan = pemesananRaw.map((p) => ({
+    idPemesanan: p.idPemesanan,
+    kodePemesanan: p.kodePemesanan,
+    status: p.status,
+    totalHarga: Number(p.totalHarga),
+    dibuatPada: p.dibuatPada.toISOString(),
+    ulasan: p.ulasan ?? null,
+    pengguna: {
+      nama: p.pengguna.nama,
+      nomorHp: p.pengguna.nomorHp ?? null,
+    },
+    slotWaktu: p.slotWaktu
+      ? {
+          tanggal: p.slotWaktu.tanggal.toISOString(),
+          jamMulai: p.slotWaktu.jamMulai,
+          jamSelesai: p.slotWaktu.jamSelesai,
+          lapangan: { nama: p.slotWaktu.lapangan.nama },
+        }
+      : null,
+  }));
 
   return (
     <>
@@ -24,67 +62,9 @@ export default async function SemuaBooking() {
       <div className="konten-body">
         <div className="kartu">
           <div className="kartu-header">
-            <span className="kartu-judul">Riwayat & Data Pesanan</span>
+            <span className="kartu-judul">Riwayat &amp; Data Pesanan</span>
           </div>
-          <div className="tabel-wrapper">
-            <table className="tabel">
-              <thead>
-                <tr>
-                  <th>ID Pesanan</th>
-                  <th>Pemesan</th>
-                  <th>Jadwal & Lapangan</th>
-                  <th>Total Tagihan</th>
-                  <th>Status</th>
-                  <th>Tanggal Dibuat</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pemesanan.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} style={{ textAlign: "center", padding: "2rem", color: "var(--abu-500)" }}>Belum ada data pemesanan</td>
-                  </tr>
-                ) : (
-                  pemesanan.map((p) => (
-                    <tr key={p.id}>
-                      <td style={{ fontWeight: 700, color: "var(--abu-900)", fontFamily: "monospace" }}>{p.kodePemesanan}</td>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{p.pengguna.nama}</div>
-                        <div style={{ fontSize: "0.75rem", color: "var(--abu-500)" }}>{p.pengguna.nomorHp || "-"}</div>
-                      </td>
-                      <td style={{ fontSize: "0.85rem" }}>
-                        {p.slotWaktu ? (
-                          <>
-                            <div style={{ fontWeight: 600, color: "var(--biru-primer)" }}>{p.slotWaktu.lapangan.nama}</div>
-                            <div>{p.slotWaktu.tanggal.toLocaleDateString("id-ID")}</div>
-                            <div style={{ color: "var(--abu-500)" }}>
-                              {p.slotWaktu.jamMulai} - {p.slotWaktu.jamSelesai}
-                            </div>
-                          </>
-                        ) : "-"}
-                      </td>
-                      <td style={{ fontWeight: 600 }}>{formatRupiah(Number(p.totalHarga))}</td>
-                      <td>
-                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                          {p.status === "MENUNGGU" && <span className="badge badge-kuning">Menunggu</span>}
-                          {p.status === "DIKONFIRMASI" && (
-                            <>
-                              <span className="badge badge-biru">Dikonfirmasi</span>
-                              <TombolSelesai id={p.id} />
-                            </>
-                          )}
-                          {p.status === "SELESAI" && <span className="badge badge-biru">Selesai</span>}
-                          {p.status === "DIBATALKAN" && <span className="badge badge-merah">Dibatalkan</span>}
-                        </div>
-                      </td>
-                      <td style={{ fontSize: "0.85rem", color: "var(--abu-500)" }}>
-                        {p.dibuatPada.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          <TabelBooking pemesanan={pemesanan} />
         </div>
       </div>
     </>

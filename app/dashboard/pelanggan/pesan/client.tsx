@@ -69,7 +69,7 @@ export function ListJadwalTersedia({ jadwalLapangan }: { jadwalLapangan: any[] }
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>
       {jadwalLapangan.map((s) => (
         <div
-          key={s.id}
+          key={s.idSlotwaktu}
           className="kartu"
           style={{
             padding: "0",
@@ -169,10 +169,10 @@ export function ListJadwalTersedia({ jadwalLapangan }: { jadwalLapangan: any[] }
                   fontSize: "0.85rem",
                   background: s.sudahDipesan || s.diblokir ? "var(--abu-200)" : "linear-gradient(135deg, var(--biru-primer), var(--biru-muda))"
                 }}
-                disabled={s.sudahDipesan || s.diblokir || loadingId === s.id}
-                onClick={() => aksiPilih(s.id, Number(s.lapangan.hargaPerJam))}
+                disabled={s.sudahDipesan || s.diblokir || loadingId === s.idSlotwaktu}
+                onClick={() => aksiPilih(s.idSlotwaktu, Number(s.lapangan.hargaPerJam))}
               >
-                {loadingId === s.id ? "..." : (s.diblokir ? "Tutup" : s.sudahDipesan ? "Penuh" : "Pilih")}
+                {loadingId === s.idSlotwaktu ? "..." : (s.diblokir ? "Tutup" : s.sudahDipesan ? "Penuh" : "Pilih")}
               </button>
             </div>
           </div>

@@ -13,7 +13,7 @@ export default async function PelangganLayout({
   if (!sesi || sesi.peran !== "PELANGGAN") redirect("/masuk");
 
   const pengguna = await prisma.pengguna.findUnique({
-    where: { id: sesi.penggunaId },
+    where: { idPengguna: sesi.penggunaId },
     select: { nama: true },
   });
 

@@ -95,7 +95,7 @@ export default async function DashboardPemilik() {
                     </tr>
                   ) : (
                     bookingTerbaru.map((b) => (
-                      <tr key={b.id}>
+                      <tr key={b.idPemesanan}>
                         <td>{b.pengguna.nama}</td>
                         <td>{b.slotWaktu?.lapangan?.nama || "-"}</td>
                         <td>

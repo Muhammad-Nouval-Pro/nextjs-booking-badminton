@@ -53,7 +53,7 @@ export async function tambahAdmin(prevState: any, formData: FormData) {
 export async function hapusAdmin(id: string) {
   try {
     await prisma.pengguna.delete({
-      where: { id, peran: "ADMIN" }
+      where: { idPengguna: id, peran: "ADMIN" }
     });
     revalidatePath("/dashboard/pemilik/admin");
     return { sukses: true };

@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
         // 1. Ambil data pemesanan dari database
         const pemesanan = await prisma.pemesanan.findUnique({
-            where: { id: pemesananId, penggunaId: sesi.penggunaId },
+            where: { idPemesanan: pemesananId, penggunaId: sesi.penggunaId },
             include: {
                 pengguna: true,
                 lapangan: true,
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
         // 2. Siapkan parameter untuk Midtrans
         // Gunakan ID Pembayaran sebagai order_id agar unik
-        const orderId = pemesanan.pembayaran?.id || `PAY-${pemesanan.id}`;
+        const orderId = pemesanan.pembayaran?.idPembayaran || `PAY-${pemesanan.idPemesanan}`;
 
         let parameter = {
             "transaction_details": {
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         // 4. Update Pembayaran dengan order_id yang dikirim ke gateway
         if (pemesanan.pembayaran) {
             await prisma.pembayaran.update({
-                where: { id: pemesanan.pembayaran.id },
+                where: { idPembayaran: pemesanan.pembayaran.idPembayaran },
                 data: {
                     idOrderGateway: orderId,
                     responGateway: transaction as any

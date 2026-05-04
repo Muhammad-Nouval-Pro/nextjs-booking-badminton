@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
         // 3. Update Status di Database
         const pembayaran = await prisma.pembayaran.findUnique({
-            where: { id: orderId } // Kita gunakan ID Pembayaran sebagai order_id di route.ts tadi
+            where: { idPembayaran: orderId } // Kita gunakan ID Pembayaran sebagai order_id di route.ts tadi
         });
 
         if (!pembayaran) {
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
         await prisma.$transaction(async (tx) => {
             // Update Pembayaran
             await tx.pembayaran.update({
-                where: { id: pembayaran.id },
+                where: { idPembayaran: pembayaran.idPembayaran },
                 data: {
                     status: statusPembayaran,
                     idTransaksiGateway: body.transaction_id,
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
             // Update Pemesanan
             await tx.pemesanan.update({
-                where: { id: pembayaran.pemesananId },
+                where: { idPemesanan: pembayaran.pemesananId },
                 data: {
                     status: statusPemesanan
                 }
@@ -74,10 +74,10 @@ export async function POST(request: Request) {
 
             // Jika dibatalkan, kembalikan slot waktu
             if (statusPemesanan === "DIBATALKAN") {
-                const p = await tx.pemesanan.findUnique({ where: { id: pembayaran.pemesananId } });
+                const p = await tx.pemesanan.findUnique({ where: { idPemesanan: pembayaran.pemesananId } });
                 if (p?.slotWaktuId) {
                     await tx.slotwaktu.update({
-                        where: { id: p.slotWaktuId },
+                        where: { idSlotwaktu: p.slotWaktuId },
                         data: { sudahDipesan: false }
                     });
                 }

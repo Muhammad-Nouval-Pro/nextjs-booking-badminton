@@ -54,7 +54,7 @@ export default async function HalamanRiwayat() {
         if (statusBaruPemesanan !== p.status) {
           await prisma.$transaction([
             prisma.pembayaran.update({
-              where: { id: p.pembayaran.id },
+              where: { idPembayaran: p.pembayaran.idPembayaran },
               data: { 
                 status: statusBaruPembayaran,
                 idTransaksiGateway: status.transaction_id,
@@ -63,7 +63,7 @@ export default async function HalamanRiwayat() {
               }
             }),
             prisma.pemesanan.update({
-              where: { id: p.id },
+              where: { idPemesanan: p.idPemesanan },
               data: { status: statusBaruPemesanan }
             })
           ]);
@@ -89,7 +89,7 @@ export default async function HalamanRiwayat() {
 
       if (sekarang > waktuSelesai) {
         await prisma.pemesanan.update({
-          where: { id: p.id },
+          where: { idPemesanan: p.idPemesanan },
           data: { status: "SELESAI" }
         });
         // Update status di object lokal agar langsung tampil sebagai SELESAI

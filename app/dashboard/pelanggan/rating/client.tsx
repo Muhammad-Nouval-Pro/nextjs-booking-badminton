@@ -5,7 +5,7 @@ import { beriRating } from "@/app/actions/pelanggan";
 import { useRouter } from "next/navigation";
 
 type PemesananRating = {
-  id: string;
+  idPemesanan: string;
   kodePemesanan: string;
   rating: number | null;
   ulasan: string | null;
@@ -95,7 +95,7 @@ function KartuBelumRating({ data }: { data: PemesananRating }) {
       return;
     }
     setLoading(true);
-    const res = await beriRating(data.id, rating, ulasan);
+    const res = await beriRating(data.idPemesanan, rating, ulasan);
     if (res.sukses) {
       setSukses(true);
       setTimeout(() => router.refresh(), 1500);
@@ -148,11 +148,11 @@ function KartuBelumRating({ data }: { data: PemesananRating }) {
       </div>
 
       <div className="rating-form-section">
-        <label className="rating-form-label" htmlFor={`ulasan-${data.id}`}>
+        <label className="rating-form-label" htmlFor={`ulasan-${data.idPemesanan}`}>
           Tulis ulasan Anda (opsional)
         </label>
         <textarea
-          id={`ulasan-${data.id}`}
+          id={`ulasan-${data.idPemesanan}`}
           className="rating-textarea"
           placeholder="Ceritakan pengalaman bermain Anda di sini..."
           rows={3}
@@ -260,7 +260,7 @@ export function KontenRating({
               </p>
             </div>
           ) : (
-            belumDirating.map((p) => <KartuBelumRating key={p.id} data={p} />)
+            belumDirating.map((p) => <KartuBelumRating key={p.idPemesanan} data={p} />)
           )}
         </div>
       )}
@@ -277,7 +277,7 @@ export function KontenRating({
               </p>
             </div>
           ) : (
-            sudahDirating.map((p) => <KartuSudahRating key={p.id} data={p} />)
+            sudahDirating.map((p) => <KartuSudahRating key={p.idPemesanan} data={p} />)
           )}
         </div>
       )}

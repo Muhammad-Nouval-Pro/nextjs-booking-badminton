@@ -21,7 +21,7 @@ export default async function HalamanRating() {
   });
 
   const pemesananSelesai = pemesananSelesaiRaw.map((p) => ({
-    id: p.id,
+    idPemesanan: p.idPemesanan,
     kodePemesanan: p.kodePemesanan,
     rating: p.rating,
     ulasan: p.ulasan,

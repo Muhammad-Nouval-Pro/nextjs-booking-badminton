@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { autoGenerateJadwal, ubahStatusJadwal, hapusJadwal } from "@/app/actions/admin";
+import { autoGenerateJadwal, ubahStatusJadwal, hapusJadwal, bookingLangsung } from "@/app/actions/admin";
 
 export function FormGenerateJadwal({ lapanganParams }: { lapanganParams: any[] }) {
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ export function FormGenerateJadwal({ lapanganParams }: { lapanganParams: any[] }
             <label className="form-label">Pilih Lapangan</label>
             <select name="lapanganId" className="form-input" required>
               {lapanganParams.map(l => (
-                <option key={l.id} value={l.id}>{l.nama}</option>
+                <option key={l.idLapangan} value={l.idLapangan}>{l.nama}</option>
               ))}
             </select>
           </div>
@@ -77,7 +77,7 @@ export function TabelJadwal({ jadwal }: { jadwal: any[] }) {
               </tr>
             ) : (
               jadwal.map((j) => (
-                <tr key={j.id}>
+                <tr key={j.idSlotwaktu}>
                   <td style={{ fontWeight: 600 }}>{j.tanggal.toLocaleDateString("id-ID")}</td>
                   <td>{j.lapangan.nama}</td>
                   <td>
@@ -94,7 +94,7 @@ export function TabelJadwal({ jadwal }: { jadwal: any[] }) {
                   </td>
                   <td style={{ display: "flex", gap: "0.5rem" }}>
                     <button
-                      onClick={() => ubahStatusJadwal(j.id, !j.diblokir)}
+                      onClick={() => ubahStatusJadwal(j.idSlotwaktu, !j.diblokir)}
                       style={{
                         padding: "0.4rem 0.75rem",
                         background: "var(--abu-100)",
@@ -106,10 +106,33 @@ export function TabelJadwal({ jadwal }: { jadwal: any[] }) {
                       }}>
                       {j.diblokir ? "Buka Sesi" : "Tutup Sesi"}
                     </button>
+                    {!j.diblokir && !j.sudahDipesan && (
+                      <button
+                        onClick={async () => {
+                          const nama = prompt("Masukkan nama customer (Offline):");
+                          if (nama) {
+                            const res = await bookingLangsung(j.idSlotwaktu, nama);
+                            if (res.sukses) alert("Booking berhasil!");
+                            else alert(res.pesan);
+                          }
+                        }}
+                        style={{
+                          padding: "0.4rem 0.75rem",
+                          background: "var(--biru-primer)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "var(--radius-sm)",
+                          fontSize: "0.8rem",
+                          cursor: "pointer",
+                          fontWeight: 600
+                        }}>
+                        Booking Langsung
+                      </button>
+                    )}
                     {!j.sudahDipesan && (
                       <button
                         onClick={() => {
-                          if (confirm("Hapus slot waktu ini?")) hapusJadwal(j.id);
+                          if (confirm("Hapus slot waktu ini?")) hapusJadwal(j.idSlotwaktu);
                         }}
                         style={{
                           padding: "0.4rem 0.75rem",
