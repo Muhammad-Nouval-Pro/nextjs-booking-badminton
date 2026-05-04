@@ -1,5 +1,5 @@
 require('ts-node').register();
-const { PrismaClient } = require('./app/generated/prisma/client');
+const { PrismaClient } = require('@prisma/client');
 
 
 

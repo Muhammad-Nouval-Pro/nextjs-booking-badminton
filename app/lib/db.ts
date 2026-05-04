@@ -1,7 +1,7 @@
 // Koneksi tunggal Prisma Client untuk seluruh aplikasi
 // Menggunakan pola singleton agar tidak membuat koneksi baru setiap hot-reload
 
-import { PrismaClient } from "@/app/generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 
 import { PrismaPg } from "@prisma/adapter-pg";
