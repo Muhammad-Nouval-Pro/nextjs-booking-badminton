@@ -225,6 +225,9 @@ export async function selesaikanBooking(pemesananId: string) {
 }
 
 export async function bookingLangsung(slotId: string, namaCustomer: string) {
+  if (!namaCustomer || namaCustomer.trim() === "") {
+    return { sukses: false, pesan: "Nama customer wajib diisi" };
+  }
   try {
     const slot = await prisma.slotwaktu.findUnique({
       where: { idSlotwaktu: slotId },

@@ -109,12 +109,18 @@ export function TabelJadwal({ jadwal }: { jadwal: any[] }) {
                     {!j.diblokir && !j.sudahDipesan && (
                       <button
                         onClick={async () => {
-                          const nama = prompt("Masukkan nama customer (Offline):");
-                          if (nama) {
-                            const res = await bookingLangsung(j.idSlotwaktu, nama);
-                            if (res.sukses) alert("Booking berhasil!");
-                            else alert(res.pesan);
+                          const nama = prompt("Masukkan NAMA CUSTOMER (Wajib diisi):");
+                          
+                          if (nama === null) return; // User klik Cancel
+                          
+                          if (!nama.trim()) {
+                            alert("Nama pemesan tidak boleh kosong!");
+                            return;
                           }
+
+                          const res = await bookingLangsung(j.idSlotwaktu, nama);
+                          if (res.sukses) alert("Booking berhasil disimpan!");
+                          else alert(res.pesan);
                         }}
                         style={{
                           padding: "0.4rem 0.75rem",

@@ -33,7 +33,6 @@ export default async function DashboardPemilik() {
 
   // Ambil booking terbaru (Limit 5)
   const bookingTerbaru = await prisma.pemesanan.findMany({
-    take: 5,
     orderBy: { dibuatPada: "desc" },
     include: {
       pengguna: { select: { nama: true } },
@@ -75,7 +74,7 @@ export default async function DashboardPemilik() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1.25rem", marginTop: "2rem" }}>
           <div className="kartu">
             <div className="kartu-header">
-              <span className="kartu-judul">📋 5 Booking Terbaru</span>
+              <span className="kartu-judul">📋 Seluruh Pemesanan</span>
             </div>
             <div className="tabel-wrapper">
               <table className="tabel">
