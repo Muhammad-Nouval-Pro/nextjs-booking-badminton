@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ambilSesi } from "@/app/lib/sesi";
+import BadmintonHeroAnimasi from "@/app/komponen/BadmintonHeroAnimasi";
 
 export default async function HalamanUtama() {
   // Redirect jika sudah login
@@ -59,8 +60,11 @@ export default async function HalamanUtama() {
         padding: "5rem 2rem",
         textAlign: "center",
         background: "linear-gradient(180deg, var(--biru-bg) 0%, white 100%)",
+        position: "relative",
+        overflow: "hidden",
       }}>
-        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+        <BadmintonHeroAnimasi />
+        <div style={{ maxWidth: "700px", margin: "0 auto", position: "relative", zIndex: 1 }}>
           <div style={{
             display: "inline-flex",
             alignItems: "center",

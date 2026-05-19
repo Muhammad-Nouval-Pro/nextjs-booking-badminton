@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { lupaPassword } from "@/app/actions/auth";
 import type { StateForm } from "@/app/lib/definisi";
+import BadmintonAnimasi from "@/app/komponen/BadmintonAnimasi";
 
 export default function HalamanLupaPassword() {
   const [state, aksi, loading] = useActionState<StateForm, FormData>(
@@ -14,6 +15,7 @@ export default function HalamanLupaPassword() {
   return (
     <div className="auth-wrapper">
       <div className="auth-kiri">
+        <BadmintonAnimasi jumlah={14} />
         <div className="auth-logo">
           {/* <div className="auth-logo-ikon">🏸</div> */}
           <span className="auth-logo-teks">GOR Garuda Nusantara</span>
