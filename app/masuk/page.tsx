@@ -117,6 +117,30 @@ export default function HalamanMasuk() {
             </button>
           </form>
 
+          <div className="auth-divider">atau</div>
+
+          <Link href="/api/auth/google" className="tombol-google">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69a5.74 5.74 0 0 1-2.5 3.77v3.13h4.05c2.37-2.18 3.73-5.39 3.73-8.75z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.87-3a4.78 4.78 0 0 1-7.9 0l-4 3.1A11.95 11.95 0 0 0 12 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M4.19 14.9a7.15 7.15 0 0 1 0-4.8l-4-3.1a11.98 11.98 0 0 0 0 11l4-3.1z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43A11.95 11.95 0 0 0 2.22 3.8l4 3.1a7.15 7.15 0 0 1 5.78-2.15z"
+              />
+            </svg>
+            <span>Masuk dengan Google</span>
+          </Link>
+
           <p className="auth-link">
             Belum punya akun?{" "}
             <Link href="/daftar">Daftar sekarang</Link>
