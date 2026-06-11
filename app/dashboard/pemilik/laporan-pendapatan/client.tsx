@@ -7,7 +7,7 @@ export function TombolExportExcel({ data }: { data: any[] }) {
     
     // 2. Pemetaan data ke baris CSV
     const rows = data.map((p) => [
-      p.id.split("-")[0],
+      p.idPembayaran?.split("-")[0] || "",
       p.dibayarPada ? new Date(p.dibayarPada).toLocaleDateString("id-ID") : new Date(p.dibuatPada).toLocaleDateString("id-ID"),
       p.pemesanan?.pengguna?.nama || "Unknown",
       p.metodeBayar || "Manual",

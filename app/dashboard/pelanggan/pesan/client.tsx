@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { buatPesanan } from "@/app/actions/pelanggan";
+import { buatPesanan, hapusPesananBatal } from "@/app/actions/pelanggan";
 import { useRouter } from "next/navigation";
 
 export function ListJadwalTersedia({ jadwalLapangan }: { jadwalLapangan: any[] }) {
@@ -22,7 +22,7 @@ export function ListJadwalTersedia({ jadwalLapangan }: { jadwalLapangan: any[] }
   };
 
   const aksiPilih = async (slotId: string, harga: number) => {
-    if (!confirm("Anda yakin ingin memesan lapangan di jam ini?")) return;
+    if (!confirm("Apakah Anda yakin ingin melanjutkan ke pembayaran?")) return;
 
     setLoadingId(slotId);
     const result = await buatPesanan(slotId, harga);
@@ -46,17 +46,22 @@ export function ListJadwalTersedia({ jadwalLapangan }: { jadwalLapangan: any[] }
               alert("Pesanan dibuat, silakan selesaikan pembayaran.");
               router.push("/dashboard/pelanggan/riwayat");
             },
-            onClose: function () {
-              alert("Pesanan disimpan. Silakan bayar di menu Riwayat.");
-              router.push("/dashboard/pelanggan/riwayat");
+            onClose: async function () {
+              alert("Pembayaran dibatalkan. Slot waktu dibebaskan.");
+              await hapusPesananBatal(result.pesananId!);
+              setLoadingId(null);
             },
           });
         } else {
-          alert("Pesanan berhasil dibuat! Silakan bayar di riwayat.");
-          router.push("/dashboard/pelanggan/riwayat");
+          alert("Gagal memproses pembayaran. Pesanan dibatalkan.");
+          await hapusPesananBatal(result.pesananId);
+          setLoadingId(null);
         }
       } catch (err) {
-        router.push("/dashboard/pelanggan/riwayat");
+        console.error("Gagal melakukan pembayaran:", err);
+        alert("Terjadi kesalahan. Pesanan dibatalkan.");
+        await hapusPesananBatal(result.pesananId);
+        setLoadingId(null);
       }
     } else {
       alert(result.pesan);

@@ -60,6 +60,47 @@ export async function buatPesanan(slotId: string, totalHarga: number) {
   }
 }
 
+export async function hapusPesananBatal(pemesananId: string) {
+  const sesi = await ambilSesi();
+  if (!sesi || !sesi.penggunaId) return { sukses: false, pesan: "Harap login" };
+
+  try {
+    const pesanan = await prisma.pemesanan.findUnique({
+      where: { idPemesanan: pemesananId, penggunaId: sesi.penggunaId }
+    });
+
+    if (!pesanan) return { sukses: false, pesan: "Pesanan tidak ditemukan" };
+
+    if (pesanan.status !== "MENUNGGU") {
+      return { sukses: false, pesan: "Pesanan tidak dapat dibatalkan" };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Hapus pembayaran terlebih dahulu
+      await tx.pembayaran.deleteMany({
+        where: { pemesananId: pemesananId }
+      });
+
+      // 2. Hapus pemesanan
+      await tx.pemesanan.delete({
+        where: { idPemesanan: pemesananId }
+      });
+
+      // 3. Set slotwaktu menjadi tidak dipesan
+      await tx.slotwaktu.update({
+        where: { idSlotwaktu: pesanan.slotWaktuId },
+        data: { sudahDipesan: false }
+      });
+    });
+
+    revalidatePath("/dashboard/pelanggan/pesan");
+    return { sukses: true };
+  } catch (error) {
+    console.error("Gagal menghapus pesanan batal:", error);
+    return { sukses: false, pesan: "Gagal membatalkan pesanan" };
+  }
+}
+
 // Upload bukti bayar secara manual mock (simulasi ubah bayar)
 export async function bayarPesanan(pembayaranId: string) {
   try {
