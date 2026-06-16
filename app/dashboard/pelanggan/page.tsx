@@ -259,7 +259,7 @@ export default async function DashboardPelanggan() {
                   </ul>
                 </div>
                 <a
-                  href={`https://wa.me/6283194228713?text=Halo%20Admin%20GOR%20Garuda%20Nusantara,%20saya%20tertarik%20untuk%20bergabung%20dengan%20Paket%20Member%20${p.nama}.%20Mohon%20informasi%20selanjutnya.`}
+                  href={`https://wa.me/6285780122260?text=Halo%20Admin%20GOR%20Garuda%20Nusantara,%20saya%20tertarik%20untuk%20bergabung%20dengan%20Paket%20Member%20${p.nama}.%20Mohon%20informasi%20selanjutnya.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
