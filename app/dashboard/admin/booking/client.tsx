@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { selesaikanBooking } from "@/app/actions/admin";
+import { selesaikanBooking, batalkanBookingOlehAdmin } from "@/app/actions/admin";
+import Link from "next/link";
 
 export function TombolSelesai({ id }: { id: string }) {
   return (
@@ -184,6 +185,7 @@ export function TabelBooking({ pemesanan }: { pemesanan: Pemesanan[] }) {
               <th>Total Tagihan</th>
               <th>Status</th>
               <th>Tanggal Dibuat</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -293,6 +295,65 @@ export function TabelBooking({ pemesanan }: { pemesanan: Pemesanan[] }) {
                     </td>
                     <td style={{ fontSize: "0.85rem", color: "var(--abu-500)" }}>
                       {tanggalDibuat}
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", gap: "0.25rem", flexDirection: "column", minWidth: "100px" }}>
+                        {p.status === "DIKONFIRMASI" && (
+                          <TombolSelesai id={p.idPemesanan} />
+                        )}
+                        {(p.status === "DIKONFIRMASI" || p.status === "MENUNGGU") && (
+                          <>
+                            <Link
+                              href={`/dashboard/admin/booking/reschedule/${p.idPemesanan}`}
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                background: "var(--abu-100)",
+                                color: "var(--abu-900)",
+                                border: "1px solid var(--abu-200)",
+                                borderRadius: "var(--radius-sm)",
+                                fontSize: "0.75rem",
+                                cursor: "pointer",
+                                textDecoration: "none",
+                                textAlign: "center",
+                                fontWeight: 600
+                              }}
+                            >
+                              Reschedule
+                            </Link>
+                            <button
+                              onClick={async () => {
+                                if (confirm("Apakah Anda yakin ingin membatalkan pesanan ini?")) {
+                                  const res = await batalkanBookingOlehAdmin(p.idPemesanan);
+                                  if (res.sukses) alert("Booking berhasil dibatalkan!");
+                                  else alert(res.pesan);
+                                }
+                              }}
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                background: "#fee2e2",
+                                color: "var(--merah)",
+                                border: "none",
+                                borderRadius: "var(--radius-sm)",
+                                fontSize: "0.75rem",
+                                cursor: "pointer",
+                                fontWeight: 600
+                              }}
+                            >
+                              Batalkan
+                            </button>
+                          </>
+                        )}
+                        {p.status === "SELESAI" && (
+                          <span style={{ fontSize: "0.75rem", color: "var(--abu-500)", fontStyle: "italic" }}>
+                            Selesai
+                          </span>
+                        )}
+                        {p.status === "DIBATALKAN" && (
+                          <span style={{ fontSize: "0.75rem", color: "var(--abu-500)", fontStyle: "italic" }}>
+                            Batal
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );

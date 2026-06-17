@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/app/lib/db";
 import { z } from "zod";
+import { ambilSesi } from "@/app/lib/sesi";
 
 // =======================
 // Aksi Lapangan
@@ -297,3 +298,97 @@ export async function bookingLangsung(slotId: string, namaCustomer: string) {
     return { sukses: false, pesan: "Terjadi kesalahan sistem" };
   }
 }
+
+export async function rescheduleBookingOlehAdmin(pemesananId: string, slotBaruId: string) {
+  const sesi = await ambilSesi();
+  if (!sesi || (sesi.peran !== "ADMIN" && sesi.peran !== "PEMILIK")) {
+    return { sukses: false, pesan: "Akses ditolak: Anda bukan admin." };
+  }
+
+  try {
+    const pesanan = await prisma.pemesanan.findUnique({
+      where: { idPemesanan: pemesananId },
+      include: { slotWaktu: true }
+    });
+
+    if (!pesanan) return { sukses: false, pesan: "Pesanan tidak ditemukan" };
+    if (pesanan.status !== "DIKONFIRMASI" && pesanan.status !== "MENUNGGU") {
+      return { sukses: false, pesan: "Status pesanan tidak memungkinkan untuk reschedule" };
+    }
+
+    const slotBaru = await prisma.slotwaktu.findUnique({ where: { idSlotwaktu: slotBaruId } });
+    if (!slotBaru || slotBaru.sudahDipesan || slotBaru.diblokir) {
+      return { sukses: false, pesan: "Slot baru sudah tidak tersedia" };
+    }
+
+    // Eksekusi pemindahan slot
+    await prisma.$transaction([
+      // 1. Lepas slot lama
+      prisma.slotwaktu.update({
+        where: { idSlotwaktu: pesanan.slotWaktuId },
+        data: { sudahDipesan: false }
+      }),
+      // 2. Ambil slot baru
+      prisma.slotwaktu.update({
+        where: { idSlotwaktu: slotBaruId },
+        data: { sudahDipesan: true }
+      }),
+      // 3. Update data pemesanan
+      prisma.pemesanan.update({
+        where: { idPemesanan: pemesananId },
+        data: { 
+          slotWaktuId: slotBaruId,
+          lapanganId: slotBaru.lapanganId 
+        }
+      })
+    ]);
+
+    revalidatePath("/dashboard/admin/booking");
+    revalidatePath("/dashboard/admin/jadwal");
+    return { sukses: true };
+  } catch (error) {
+    console.error("Reschedule admin err:", error);
+    return { sukses: false, pesan: "Terjadi kesalahan sistem." };
+  }
+}
+
+export async function batalkanBookingOlehAdmin(pemesananId: string) {
+  const sesi = await ambilSesi();
+  if (!sesi || (sesi.peran !== "ADMIN" && sesi.peran !== "PEMILIK")) {
+    return { sukses: false, pesan: "Akses ditolak: Anda bukan admin." };
+  }
+
+  try {
+    const pesanan = await prisma.pemesanan.findUnique({
+      where: { idPemesanan: pemesananId }
+    });
+
+    if (!pesanan) return { sukses: false, pesan: "Pesanan tidak ditemukan" };
+
+    await prisma.$transaction([
+      // 1. Ubah status pemesanan
+      prisma.pemesanan.update({
+        where: { idPemesanan: pemesananId },
+        data: { status: "DIBATALKAN" }
+      }),
+      // 2. Ubah status pembayaran
+      prisma.pembayaran.updateMany({
+        where: { pemesananId: pemesananId },
+        data: { status: "GAGAL" }
+      }),
+      // 3. Kembalikan slot waktu
+      prisma.slotwaktu.update({
+        where: { idSlotwaktu: pesanan.slotWaktuId },
+        data: { sudahDipesan: false }
+      })
+    ]);
+
+    revalidatePath("/dashboard/admin/booking");
+    revalidatePath("/dashboard/admin/jadwal");
+    return { sukses: true };
+  } catch (error) {
+    console.error("Batal booking admin err:", error);
+    return { sukses: false, pesan: "Terjadi kesalahan sistem." };
+  }
+}
+

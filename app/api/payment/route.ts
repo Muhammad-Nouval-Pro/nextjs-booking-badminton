@@ -39,8 +39,8 @@ export async function POST(request: Request) {
         }
 
         // 2. Siapkan parameter untuk Midtrans
-        // Gunakan ID Pembayaran sebagai order_id agar unik
-        const orderId = pemesanan.pembayaran?.idPembayaran || `PAY-${pemesanan.idPemesanan}`;
+        const idPembayaran = pemesanan.pembayaran?.idPembayaran || `PAY-${pemesanan.idPemesanan}`;
+        const orderId = `${idPembayaran}-${Date.now()}`;
 
         let parameter = {
             "transaction_details": {

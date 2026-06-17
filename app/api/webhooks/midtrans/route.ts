@@ -44,8 +44,9 @@ export async function POST(request: Request) {
         }
 
         // 3. Update Status di Database
+        const realPaymentId = orderId.split('-')[0];
         const pembayaran = await prisma.pembayaran.findUnique({
-            where: { idPembayaran: orderId } // Kita gunakan ID Pembayaran sebagai order_id di route.ts tadi
+            where: { idPembayaran: realPaymentId }
         });
 
         if (!pembayaran) {
