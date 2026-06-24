@@ -158,6 +158,13 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
                   {prosesId === p.idPemesanan ? "Mengirim..." : "Beri Ulasan & Rating"}
                 </button>
               )}
+              <button 
+                className="tombol-outline" 
+                style={{ width: "100%", marginTop: "0.5rem" }}
+                onClick={() => window.open(`/invoice/${p.idPemesanan}`, '_blank')}
+              >
+                🧾 Lihat Struk / Invoice
+              </button>
             </div>
           )}
 
@@ -174,6 +181,13 @@ export function RiwayatDanTagihan({ dataPemesanan }: { dataPemesanan: any[] }) {
                 onClick={() => router.push(`/dashboard/pelanggan/riwayat/reschedule/${p.idPemesanan}`)}
               >
                 🔄 Reschedule Jadwal
+              </button>
+              <button 
+                className="tombol-outline" 
+                style={{ width: "100%" }}
+                onClick={() => window.open(`/invoice/${p.idPemesanan}`, '_blank')}
+              >
+                🧾 Lihat Struk / Invoice
               </button>
             </div>
           )}
